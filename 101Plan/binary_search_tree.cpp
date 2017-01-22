@@ -7,6 +7,7 @@
 //
 
 #include "binary_search_tree.hpp"
+#include <stack>
 
 typedef int KeyType;
 typedef struct Node
@@ -69,6 +70,26 @@ PNODE search(PNODE root, KeyType key)
     } else {
         return root;
     }
+}
+// 查找键值为key的节点，非递归实现
+PNODE search_nr(PNODE root, KeyType key)
+{
+    PNODE p = root;
+    if (NULL == root)
+        return NULL;
+    
+    while(p) {
+        if (p->key == key) {
+            return p;
+        }
+        else if (p->key > key) {
+            p = p->left;
+        } else if (p->key < key) {
+            p = p->right;
+        }
+    }
+    
+    return NULL;
 }
 
 // 查找最小键值节点，空树返回NULL
@@ -210,6 +231,173 @@ void create(PNODE* root, KeyType* keyArray, int iLength)
     }
 }
 
+// 遍历二叉树， 打印出所有节点键值 , 先序
+void printAll_Pre(PNODE root)
+{
+    if (root) {
+        printf("%d\n", root->key);
+        printAll_Pre(root->left);
+        printAll_Pre(root->right);
+    }
+}
+
+// 遍历二叉树，先序，非递归
+void printAll_Pre_nr(PNODE root)
+{
+    std::stack<PNODE> s;
+    PNODE p = root;
+    
+    while (p != NULL || !(s.empty()))
+    {
+        while(p)
+        {
+            s.push(p);
+            printf("%d\n", p->key);
+            p = p->left;
+        }
+        
+        if (!s.empty()) {
+            PNODE ptemp = s.top();
+            s.pop();
+            p = ptemp->right;
+        }
+    }
+}
+
+// 遍历二叉树，中序， 递归
+void printAll_Mid(PNODE root)
+{
+    if(root) {
+        printAll_Mid(root->left);
+        printf("%d\n", root->key);
+        printAll_Mid(root->right);
+    }
+}
+
+// 遍历二叉树，中序， 非递归
+void printAll_Mid_nr(PNODE root)
+{
+    std::stack<PNODE> s;
+    PNODE p = root;
+    
+    while( NULL != p || !(s.empty()))
+    {
+        while(p) {
+            s.push(p);
+            p = p->left;
+        }
+        
+        if(!s.empty())
+        {
+            PNODE pTemp = s.top();
+            s.pop();
+            printf("%d\n", pTemp->key);
+            p = pTemp->right;
+        }
+    }
+}
+
+// 遍历二叉树，后序，递归
+void printAll_Post(PNODE root)
+{
+    if(root) {
+        printAll_Mid(root->left);
+        printAll_Mid(root->right);
+        printf("%d\n", root->key);
+    }
+}
+
+typedef struct Node_With_Info {
+    PNODE p;
+    bool  isFirstOnStackTop;
+    
+    Node_With_Info(PNODE pValue, bool boolval):p(pValue), isFirstOnStackTop(boolval) {}
+} NODEINFO, *PNODEINFO;
+
+// 遍历二叉树， 后序， 非递归
+void printAll_Post_nr(PNODE root)
+{
+    std::stack<PNODEINFO> s;
+    PNODE p = root;
+    
+    while(NULL !=p || !s.empty())
+    {
+        while(p)
+        {
+            PNODEINFO pTemp = new NODEINFO(p, true);
+            s.push(pTemp);
+            p = p->left;
+        }
+        
+        if (!s.empty()) {
+            PNODEINFO temp = s.top();
+            s.pop();
+            if (temp->isFirstOnStackTop) {
+                temp->isFirstOnStackTop = false;
+                s.push(temp);
+                p = temp->p->right;
+            } else {
+                delete temp;
+                printf("%d\n", temp->p->key);
+                p = NULL;
+            }
+        }
+    }
+}
+
+/* 不成功 http://blog.csdn.net/sgbfblog/article/details/7783935 待分析
+int iIndex = 0;
+KeyType pArray[] = {1, 2, 4, 5, 3, 6, 7, -1};
+// 已先序遍历的结果创建树，不一定是BST
+void createTree(PNODE* root)
+{
+    if (pArray[iIndex] == -1)
+        *root = NULL;
+    else {
+        *root = new NODE();
+        (*root)->key = pArray[iIndex];
+        createTree(&(*root)->left);
+        createTree(&(*root)->right);
+    }
+}
+*/
+
+void LevelTraverse(PNODE p, int iHeight)
+{
+    if(NULL == p || iHeight < 1)
+        return;
+    
+    if(iHeight == 1) {
+        printf("%d    ", p->key);
+        return;
+    }
+    
+    LevelTraverse(p->left, iHeight - 1);
+    LevelTraverse(p->right, iHeight - 1);
+}
+
+int calculateHeight(PNODE p)
+{
+    if(!p)
+        return 0;
+    else {
+        int i  = calculateHeight(p->left);
+        int j  = calculateHeight(p->right);
+        return 1 + (i > j ? i : j);
+    }
+}
+
+void PrintByLevel(PNODE p)
+{
+    int iHeight = calculateHeight(p);
+    
+    for (int i = 1; i <= iHeight; i++)
+    {
+        LevelTraverse(p, i);
+        printf("\n");
+    }
+}
+
 int performBinarySearchTreeTest()
 {
     int i;
@@ -222,6 +410,25 @@ int performBinarySearchTreeTest()
     printf("%d\n",searchSuccessor(root)->key);
     printf("%d\n",searchMin(root)->key);
     printf("%d\n",searchMax(root)->key);
+    printf("%d\n",search_nr(root,13)->key);
     printf("%d\n",search(root,13)->key);
+    printf("--前序递归--\n");
+    printAll_Pre(root);
+    printf("---前序非递归--\n");
+    printAll_Pre_nr(root);
+    printf("--中序递归--\n");
+    printAll_Mid(root);
+    printf("---中序非递归--\n");
+    printAll_Mid_nr(root);
+    
+    // 奇怪的， 后序递归和非递归不一致！，说明非递归还是写的有问题。。。
+    printf("--后序递归--\n");
+    printAll_Post(root);
+    printf("--后序非递归--\n");
+    printAll_Post_nr(root);
+    printf("--=--\n");
+    
+    // 按层递归打印二叉树
+    PrintByLevel(root);
     return 0;
 }
