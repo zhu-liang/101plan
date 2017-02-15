@@ -10,8 +10,14 @@
 #include "map_usage.hpp"
 #include "binary_search_tree.hpp"
 
+#include "smart_ptr.hpp"
+
 using namespace std;
 
+class Foo {
+public:
+    int iMem = 1;
+};
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Show Time!\n";
@@ -22,5 +28,12 @@ int main(int argc, const char * argv[]) {
     cout << tester;
     performBinarySearchTreeTest();
     cout << "---------" <<endl;
+    
+    perform_smart_ptr_ops();
+    
+    Foo a;
+    const Foo& b = a;
+    //b.iMem = 2;
+    cout << "b.iMem " << b.iMem <<endl;
     return 0;
 }

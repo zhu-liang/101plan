@@ -8,6 +8,9 @@
 
 #include "binary_search_tree.hpp"
 #include <stack>
+#include <list>
+
+using namespace std;
 
 typedef int KeyType;
 typedef struct Node
@@ -109,7 +112,7 @@ PNODE searchMax(PNODE root)
 {
     if (NULL == root) {
         return NULL;
-    } else if (root->left == NULL) {
+    } else if (root->right == NULL) {
         return root;
     } else {
         return searchMax(root->right);
@@ -398,6 +401,48 @@ void PrintByLevel(PNODE p)
     }
 }
 
+void testListSTL()
+{
+    typedef list<int>::iterator IntListIter;
+    list<int> l1;
+    list<int> l2;
+    l1.insert(l1.end(), 1);
+    l1.insert(l1.end(), 2);
+    l1.insert(l1.end(), 3);
+    l1.insert(l1.end(), 4);
+    l1.insert(l1.end(), 5);
+    
+    l2.insert(l2.end(), 6);
+    l2.insert(l2.end(), 5);
+    l2.insert(l2.end(), 9);
+    l2.insert(l2.end(), 8);
+    l2.insert(l2.end(), 10);
+    l2.insert(l2.end(), 22);
+    
+    //为何不能成功
+    //l1.insert(l1.end(), l2.begin() + l2.size()/2, l2.end());
+    
+
+    for(IntListIter iter = l1.begin(); iter!= l1.end() ;iter++)
+    {
+        printf("Value = %d\n", *iter);
+    }
+    
+    for(IntListIter iter = l2.begin(); iter!= l2.end(); iter++)
+    {
+        printf("L2 Value = %d\n", *iter);
+    }
+    
+    printf("----\n");
+    l1.splice(l1.end(), l2, find(l2.begin(), l2.end(), 5),
+              find(l2.rbegin(), l2.rend(), 10).base());
+    
+    for(IntListIter iter = l1.begin(); iter!= l1.end() ;iter++)
+    {
+        printf("L1 Value = %d\n", *iter);
+    }
+}
+
 int performBinarySearchTreeTest()
 {
     int i;
@@ -430,5 +475,7 @@ int performBinarySearchTreeTest()
     
     // 按层递归打印二叉树
     PrintByLevel(root);
+    
+    testListSTL();
     return 0;
 }
