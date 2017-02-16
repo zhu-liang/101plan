@@ -11,6 +11,7 @@
 #include "binary_search_tree.hpp"
 
 #include "smart_ptr.hpp"
+#include "cplusplus11.hpp"
 
 using namespace std;
 
@@ -35,5 +36,7 @@ int main(int argc, const char * argv[]) {
     const Foo& b = a;
     //b.iMem = 2;
     cout << "b.iMem " << b.iMem <<endl;
+    
+    LOG("%d", 100);
     return 0;
 }
